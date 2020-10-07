@@ -1,0 +1,82 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://scripts/Terrain2.gd" type="Script" id=1]
+[ext_resource path="res://TerainNoise.tres" type="Texture" id=2]
+[ext_resource path="res://Plane.tscn" type="PackedScene" id=3]
+[ext_resource path="res://ju-87.fbx" type="PackedScene" id=5]
+
+[sub_resource type="OpenSimplexNoise" id=1]
+
+[sub_resource type="Shader" id=2]
+code = "shader_type spatial;
+
+uniform float height_scale = 0.5;
+uniform sampler2D noise;
+uniform sampler2D normalmap;
+uniform float shift = 0.0;
+
+varying vec2 vertex_position;
+
+void vertex() {
+  vertex_position = vec2(VERTEX.x, VERTEX.z + shift);
+  float height = texture(noise, vertex_position).x;
+  VERTEX.y += height * height_scale;
+}
+      
+void fragment() {
+	NORMALMAP = texture(noise, vertex_position).xyz;
+}"
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = SubResource( 2 )
+shader_param/height_scale = 2.793
+shader_param/shift = 1.417
+shader_param/noise = ExtResource( 2 )
+shader_param/normalmap = ExtResource( 2 )
+
+[sub_resource type="PlaneMesh" id=4]
+material = SubResource( 3 )
+size = Vector2( 1, 1 )
+subdivide_width = 1028
+subdivide_depth = 1028
+
+[node name="Terrain" type="Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.894254, -0.0337305, -0.103891 )
+script = ExtResource( 1 )
+noise = SubResource( 1 )
+step = -0.005
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 20.4835, 0.00733616, 0, -0.149081, 1.00797, 0, 0, 0, 27.326, 1.46015, -1.26941, -0.622211 )
+mesh = SubResource( 4 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.530507, 16.9981, -7.92688 )
+light_color = Color( 0.933333, 0.0941176, 0.823529, 1 )
+light_energy = 0.98
+light_indirect_energy = 0.0
+light_specular = 0.0
+light_bake_mode = 2
+shadow_enabled = true
+shadow_color = Color( 0.0470588, 0.85098, 0.764706, 1 )
+shadow_bias = -16.0
+omni_range = 19.5
+omni_attenuation = 0.341509
+omni_shadow_mode = 0
+omni_shadow_detail = 0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.405917, 0.913909, 0.00105024, -0.91391, 0.405917, 3.07256e-05, -0.000398229, -0.000972294, 0.999999, -0.0440087, 13.6474, 0.107764 )
+light_color = Color( 0.87451, 0.972549, 0.760784, 1 )
+light_energy = 0.89
+light_indirect_energy = 7.54
+light_negative = true
+
+[node name="Plane" parent="." instance=ExtResource( 3 )]
+transform = Transform( 0.191706, 0, 0, 0, 0.238116, 0, 0, 0, -0.272935, -1.15083, 1.55907, -9.62456 )
+visible = false
+
+[node name="ju-87" parent="." instance=ExtResource( 5 )]
+transform = Transform( 0.261088, 0, 0.0602434, 0, 0.267948, 0, -0.0602434, 0, 0.261088, -3.75837, 1.30049, -15.7136 )
+visible = false
